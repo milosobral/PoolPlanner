@@ -3,6 +3,7 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/gocolly/colly"
@@ -47,6 +48,12 @@ func getPoolList(url string) []pool {
 		// Add the pool to the list
 		pools = append(pools, pool{name, href, address, neighbourhood})
 	})
+
+	c.OnError(
+		func(r *colly.Response, err error) {
+			fmt.Println("Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
+		},
+	)
 
 	// Start scraping
 	c.Visit(url)
