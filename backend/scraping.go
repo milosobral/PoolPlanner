@@ -4,8 +4,11 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"regexp"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gocolly/colly"
 )
@@ -19,8 +22,8 @@ type Pool struct {
 }
 
 type Schedule struct {
-	validity string
-	sched    map[string]string
+	validity []time.Time
+	sched    map[string][]int
 }
 
 // define the priority of strings
@@ -31,6 +34,11 @@ var priorityList = []string{
 	"les adultes",
 	"toutes et tous (16 ans et plus)",
 	"toutes et tous",
+}
+
+// Stringer function for the schedule struct
+func (s Schedule) String() string {
+	return fmt.Sprintf("Validity: %v\nSchedules: %v", s.validity, s.sched)
 }
 
 // Stringer function for the pool struct
@@ -81,6 +89,8 @@ func getPoolList(url string) []Pool {
 // Takes a url and a channel and scrapes the pool schedule
 func getPoolSchedule(url string) {
 
+	schedules := make([]Schedule, 0)
+
 	// Create a new instance of the Collector
 	c := colly.NewCollector()
 
@@ -89,16 +99,31 @@ func getPoolSchedule(url string) {
 
 		// Get the validity of the schedule
 		nodes := selvalidity.Nodes
-		for _, node := range nodes {
-			fmt.Println(node.Attr)
+		layout := "2006-01-02T15:04:05-0700"
+		from, err := time.Parse(layout, nodes[0].Attr[0].Val)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		to, err := time.Parse(layout, nodes[0].Attr[0].Val)
+
+		if err != nil {
+			log.Fatal(err)
 		}
 
 		// Get the schedules for the current validity
 		selsched := e.DOM.Find("div.content-module-stacked")
-		// fmt.Println(selsched.Text())
 
 		// Parse the Schedule for the current validity
-		parseSchedule(selsched.Text())
+		poolSched := parseSchedule(selsched.Text())
+
+		newSchedule := Schedule{
+			validity: []time.Time{from, to},
+			sched:    poolSched}
+		schedules = append(schedules, newSchedule)
+
+		fmt.Println(newSchedule)
 
 	})
 
@@ -106,14 +131,21 @@ func getPoolSchedule(url string) {
 	c.Visit(url)
 }
 
-func parseSchedule(scheduleString string) map[string][]string {
+// Function to parse a schedule string and return a map of the days of the week
+// with their corresponding hours of operation
+func parseSchedule(scheduleString string) map[string][]int {
 
+	// Split the schedule string into substrings that represent the different
+	// days of the week and their corresponding hours of operation
 	re := regexp.MustCompile("JourHoraire|Pour ")
 
 	substrings := re.Split(scheduleString, -1)[1:]
 
+	// Initialize a slice to store the priorities of the substrings
 	priorities := make([]int, len(substrings)/2)
 
+	// Loop over the substrings and set the priority of each substring
+	// based on its index in the priority list
 	for i, line := range substrings {
 		if i%2 == 0 {
 			// Set the priority based on the index of line in the priority list
@@ -125,42 +157,88 @@ func parseSchedule(scheduleString string) map[string][]string {
 	minPriorityIndex := GetMinimumPriorityIndex(priorities)
 
 	// Get the schedule for the minimum priority
-	sched := GetScheduleFromString(substrings[minPriorityIndex*2+1])
+	sched, err := GetScheduleFromString(substrings[minPriorityIndex*2+1])
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	return sched
 
 }
 
-func GetScheduleFromString(scheduleString string) map[string][]string {
+// Function to parse a schedule string and return a map of the days of the week
+// with their corresponding hours of operation
+func GetScheduleFromString(scheduleString string) (map[string][]int, error) {
 	// Match the days of the week in french
 	re_days := regexp.MustCompile("(Lundi|Mardi|Mercredi|Jeudi|Vendredi|Samedi|Dimanche)")
 
 	// Split the string into days
 	matches := re_days.FindAllStringSubmatchIndex(scheduleString, -1)
 
-	result := make(map[string]string)
+	result := make(map[string][]int)
 
 	// Iterate over the matches and extract the content
-	for i := 0; i < len(matches)-1; i++ {
+	for i := 0; i < len(matches); i++ {
 		day := scheduleString[matches[i][0]:matches[i][1]]
-		content := strings.TrimSpace(scheduleString[matches[i][1]:matches[i+1][0]])
 
-		// Remove all the white spaces from the content
-		content = strings.ReplaceAll(content, " ", "")
+		var content string
 
-		// Add the content to the result
-		pattern := regexp.MustCompile(`\d{0,2}h\d{0,2}`)
-		new_matches := pattern.FindAllString(content, -1)
-
-		for _, new_match := range new_matches {
-			fmt.Println(new_match)
+		// Get the content of the day
+		if i == len(matches)-1 {
+			content = strings.TrimSpace(scheduleString[matches[i][1]:])
+		} else {
+			content = strings.TrimSpace(scheduleString[matches[i][1]:matches[i+1][0]])
 		}
 
-		result[day] = content
+		// Remove all the white spaces from the content
+		content = regexp.MustCompile(`\s|[\xa0]`).ReplaceAllString(content, "")
+
+		// Add the content to the result
+		re_hours := regexp.MustCompile(`h`)
+		new_matches := re_hours.FindAllStringSubmatchIndex(content, -1)
+		hours := make([]int, len(new_matches)*2)
+
+		for i, match := range new_matches {
+			var before, after string
+
+			// Check the character before the match to know how many characters
+			// to take for the hour
+			if match[0] < 2 {
+				before = content[match[0]-1 : match[0]]
+			} else if match[0] == 2 {
+				before = content[match[0]-2 : match[0]]
+			} else {
+				// Check if the hour is of the form 12h30 or 1h30
+				test := content[match[0]-4 : match[0]]
+				if regexp.MustCompile(`[^0-9].*\d{3}`).MatchString(test) {
+					before = content[match[0]-1 : match[0]]
+				} else {
+					before = content[match[0]-2 : match[0]]
+				}
+			}
+
+			after = content[match[1] : match[1]+2]
+
+			// Convert string to int and store in hours
+			beforeInt, err := strconv.Atoi(before)
+			if err != nil {
+				return nil, err
+			}
+
+			afterInt, err := strconv.Atoi(after)
+			if err != nil {
+				return nil, err
+			}
+			hours[i*2] = beforeInt
+			hours[i*2+1] = afterInt
+
+		}
+		result[day] = hours
 
 	}
 
-	return nil
+	return result, nil
 }
 
 func GetPriority(substring string) int {
@@ -185,45 +263,3 @@ func GetMinimumPriorityIndex(priorities []int) int {
 	}
 	return index
 }
-
-// func extractTimes(input string) []map[string]string {
-
-// 	//
-
-// 	return info
-// }
-
-// func parseSchedule(scheduleString string) {
-// 	// Regular expressions to match different parts of the schedule
-// 	periodRegex := regexp.MustCompile(`du (\d{2} au \d{2})`)
-// 	// dayRegex := regexp.MustCompile(`(Lundi|Mardi|Mercredi|Jeudi|Vendredi|Samedi|Dimanche)`)
-// 	// timeRegex := regexp.MustCompile(`(\d{2} h \d{2} à \d{2} h \d{2})`)
-
-// 	// schedule := make(Schedule)
-// 	// currentPeriod := ""
-
-// 	for _, line := range strings.Split(scheduleString, "\n") {
-// 		fmt.Println(line)
-// 		fmt.Println()
-// 		// Match the period
-// 		// if periodMatch := periodRegex.FindStringSubmatch(line); len(periodMatch) > 1 {
-// 		// 	currentPeriod = periodMatch[1]
-// 		// 	// schedule[currentPeriod] = make(map[string][]string)
-
-// 		// 	fmt.Println(currentPeriod)
-// 		// }
-
-// 		// Match the day and time
-// 		// if dayMatch := dayRegex.FindStringSubmatch(line); len(dayMatch) > 0 {
-// 		// 	day := dayMatch[1]
-// 		// 	timeMatches := timeRegex.FindAllStringSubmatch(line, -1)
-// 		// 	times := make([]string, len(timeMatches))
-// 		// 	for i, match := range timeMatches {
-// 		// 		times[i] = match[1]
-// 		// 	}
-// 		// 	// schedule[currentPeriod][day] = times
-// 		// }
-// 	}
-
-// 	// return schedule
-// }
