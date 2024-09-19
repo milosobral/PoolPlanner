@@ -3,6 +3,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"regexp"
@@ -218,6 +219,10 @@ func GetScheduleFromString(scheduleString string) (map[string][]int, error) {
 				}
 			}
 
+			if match[1] >= len(content) {
+				return nil, errors.New("INVALID CONTENT")
+			}
+
 			after = content[match[1] : match[1]+2]
 
 			// Convert string to int and store in hours
@@ -241,21 +246,35 @@ func GetScheduleFromString(scheduleString string) (map[string][]int, error) {
 	return result, nil
 }
 
+// Function to get the priority of a given substring
+// The function takes a substring and returns its priority in the priority list
+// If the substring is not found in the priority list, the function returns 1000
 func GetPriority(substring string) int {
+	// Iterate over the priority list
 	for i, priority := range priorityList {
+		// If the current priority matches the given substring, return its index
 		if priority == substring {
 			return i
 		}
 	}
+	// If the substring is not found in the priority list, return 1000
 	return 1000
 }
 
+// Function to find the index of the minimum priority in a list
+// The function takes a list of priorities and returns the index of the minimum
+// priority. If two priorities have the same value, the function returns the
+// index of the first one.
 func GetMinimumPriorityIndex(priorities []int) int {
 
+	// Initialize the minimum priority and its index
 	min := 1000
 	var index int
 
+	// Iterate over the list of priorities
 	for i, priority := range priorities {
+		// If the current priority is smaller than the minimum
+		// update the minimum and its index
 		if priority < min {
 			min = priority
 			index = i
