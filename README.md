@@ -1,6 +1,6 @@
 # PoolPlanner
 
-![Build](https://github.com/milo-sobral/PoolPlanner/blob/main/.github/workflows/go.yml/badge.svg)
+![go](https://github.com/milo-sobral/PoolPlanner/actions/workflows/go.yml/badge.svg)
 
 This repository contains the code for a web app that I am using to learn Go and Angular.
 
