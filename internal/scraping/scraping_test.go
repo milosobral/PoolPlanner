@@ -12,7 +12,7 @@ import (
 func TestGetPoolList(t *testing.T) {
 
 	// Get the list of pools
-	pools := getPoolList("https://montreal.ca/lieux?mtl_content.lieux.installation.code=PISI&mtl_content.lieux.available_activities.code=ACT0")
+	pools := GetPoolList("https://montreal.ca/lieux?mtl_content.lieux.installation.code=PISI&mtl_content.lieux.available_activities.code=ACT0")
 
 	// Check if the list contains at least one pool
 	if len(pools) == 0 {
