@@ -3,7 +3,6 @@
 package scraping
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 )
@@ -98,7 +97,6 @@ func TestGetScheduleFromString(t *testing.T) {
 	scheduleString = "Samedi8h"
 	expected = nil
 	actual, err = GetScheduleFromString(scheduleString)
-	fmt.Println(actual)
 	if err == nil {
 		t.Errorf("Expected error but got nil")
 	}
