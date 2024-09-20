@@ -49,7 +49,7 @@ func (p Pool) String() string {
 }
 
 // Scraping the pool list with Colly
-func getPoolList(url string) []Pool {
+func GetPoolList(url string) []Pool {
 
 	pools := make([]Pool, 0)
 
