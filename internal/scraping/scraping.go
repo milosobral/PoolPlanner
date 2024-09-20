@@ -1,6 +1,6 @@
 // Code to scrape data from the Montreal Website
 
-package main
+package scraping
 
 import (
 	"errors"

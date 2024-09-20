@@ -1,6 +1,6 @@
 // Test file to test the scraping code
 
-package main
+package scraping
 
 import (
 	"fmt"

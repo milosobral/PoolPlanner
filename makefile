@@ -2,4 +2,4 @@
 
 .PHONY: run
 run:
-	go run ./backend/.
+	go run .
