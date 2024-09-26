@@ -1,35 +1,20 @@
 package main
 
 import (
-	"fmt"
-	"time"
-
-	"github.com/milo-sobral/PoolPlanner/internal/services/calendar"
-	"github.com/milo-sobral/PoolPlanner/internal/services/scraping"
+	"github.com/labstack/echo/v4"
+	"github.com/milo-sobral/PoolPlanner/internal/handlers"
 )
 
 func main() {
 
-	// Get the list of pools
-	pools := scraping.GetPoolList("https://montreal.ca/lieux?mtl_content.lieux.installation.code=PISI&mtl_content.lieux.available_activities.code=ACT0")
+	// Create a simple server which serves index.html
+	e := echo.New()
+	e.Renderer = newTemplate()
 
-	// Print the list of pools
-	for _, pool := range pools {
-		fmt.Println(pool)
-	}
+	// Routes
+	e.GET("/", handlers.HandleHeader)
 
-	// url := "https://montreal.ca/lieux/piscine-schubert"
-
-	// getPoolSchedule(url)
-
-	cal := calendar.CreateCalendar()
-	start := time.Now()
-	end := time.Now().Add(1 * time.Hour)
-
-	cal.AddEvent(calendar.CreateEvent(start, end))
-
-	fmt.Println(cal.GetEvents())
-
-	cal.Save("test.ics")
+	// Start server
+	e.Logger.Fatal(e.Start(":42069"))
 
 }
