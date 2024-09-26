@@ -18,6 +18,7 @@
   </head>
 
   <body>
-    {{ template "header" . }}
+    <div>{{ template "header" .Language }}</div>
+    <div>{{ template "pools-list" .Pools }}</div>
   </body>
 </html>

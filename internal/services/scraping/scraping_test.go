@@ -21,7 +21,7 @@ func TestGetPoolList(t *testing.T) {
 	// Check if the list contains at least one pool named Piscine Schubert
 	var found bool = false
 	for _, p := range pools {
-		if p.name == "Piscine Schubert" {
+		if p.Name == "Piscine Schubert" {
 			found = true
 		}
 	}

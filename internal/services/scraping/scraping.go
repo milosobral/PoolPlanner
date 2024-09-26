@@ -16,10 +16,10 @@ import (
 
 // Pool struct
 type Pool struct {
-	name          string
-	href          string
-	address       string
-	neighbourhood string
+	Name         string
+	Href         string
+	Address      string
+	Neighborhood string
 }
 
 type Schedule struct {
@@ -45,7 +45,7 @@ func (s Schedule) String() string {
 // Stringer function for the pool struct
 func (p Pool) String() string {
 	// Make a string with the pool name and href
-	return "Name: " + p.name + "\nURL: " + p.href + "\nAddress: " + p.address + "\nNeighbourhood: " + p.neighbourhood
+	return "Name: " + p.Name + "\nURL: " + p.Href + "\nAddress: " + p.Address + "\nNeighbourhood: " + p.Neighborhood
 }
 
 // Scraping the pool list with Colly

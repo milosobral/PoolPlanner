@@ -29,7 +29,7 @@ func main() {
 	e.Renderer = NewTemplate()
 
 	// Routes
-	e.GET("/", handlers.HandleLanguageDefault)
+	e.GET("/", handlers.HandleDefault)
 	e.GET("/language-eng", handlers.HandleLanguageEng)
 	e.GET("/language-fra", handlers.HandleLanguageFra)
 
