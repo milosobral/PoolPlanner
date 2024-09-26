@@ -2,13 +2,14 @@
 
 .PHONY: run
 run:
-	go run .
+	go run ./cmd/main.go
 
 build:
-	go build
+	go build -o ./build/main -v ./cmd/main.go 
 
 clean:
 	go clean
+	rm -rf build
 
 .PHONY: test
 test:
