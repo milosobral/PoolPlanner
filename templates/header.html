@@ -1,29 +1,83 @@
-{{ block "header-eng" . }}
+{{ block "header" . }}
 
-    <div class="bg-blue-50 p-6 rounded-lg shadow-md mb-8 text-center">
-        <h1 class="text-6xl font-bold text-blue-600 mb-4">Pool Planner</h1>
-        <p class="text-gray-700 text-lg">
-            Welcome to Pool Planner, your go-to tool for organizing swimming sessions!
-            <br>
-            Select one or more pools from the list, and instantly generate a custom iCal link. 
-            <br>
-            Sync it with your favorite calendar app to receive real-time updates on pool opening hours, making sure you never miss a swim!
-        </p>
-    </div>
+<div class="bg-blue-50 p-6 rounded-lg shadow-md mb-8 text-center">
+  <h1 class="text-6xl font-bold text-blue-600 mb-4">Pool Planner</h1>
+  {{ template "language-toggle" . }}
+  <br />
+  <div id="explanation">{{ template "explanation-fra" . }}</div>
+</div>
 
-{{ end }}
+{{ end }} {{ block "explanation-eng" . }}
 
-{{ block "header-fra" . }}
+<p class="text-gray-700 text-xl">
+  Welcome to Pool Planner, your go-to tool for organizing swimming sessions in
+  Montreal!
+  <br />
+  Select one or more pools from the list, and instantly generate a custom iCal
+  link.
+  <br />
+  Sync it with your favorite calendar app to receive real-time updates on pool
+  opening hours, making sure you never miss a swim!
+</p>
 
-    <div class="bg-blue-50 p-6 rounded-lg shadow-md mb-8 text-center">
-        <h1 class="text-6xl font-bold text-blue-600 mb-4">Planificateur de Piscine</h1>
-        <p class="text-gray-700 text-lg">
-            Bienvenue Pool Planner, votre outil indispensable pour organiser vos séances de natation !
-            <br>
-            Sélectionnez une ou plusieurs piscines dans la liste et générez instantanément un lien iCal personnalisé. 
-            <br>
-            Synchronisez-le avec votre application de calendrier préférée pour recevoir des mises à jour en temps réel sur les horaires d'ouverture, et ne manquez jamais une séance de nage !
-        </p>
-    </div>
+{{ end }} {{ block "explanation-fra" . }}
+
+<p class="text-gray-700 text-xl">
+  Bienvenue dans Pool Planner, votre outil indispensable pour organiser vos
+  séances de natation a Montreal!
+  <br />
+  Sélectionnez une ou plusieurs piscines dans la liste et générez instantanément
+  un lien iCal personnalisé.
+  <br />
+  Synchronisez-le avec votre application de calendrier préférée pour recevoir
+  des mises à jour en temps réel sur les horaires d'ouverture, et ne manquez
+  jamais une séance de nage !
+</p>
+{{ end }} {{ block "language-toggle" . }}
+
+<span class="flex justify-center">
+  <span hx-get="/language-fra" hx-target="#explanation">
+    {{ template "france-svg" . }}
+  </span>
+  <span hx-get="/language-eng" hx-target="#explanation">
+    {{ template "english-svg" . }}
+  </span>
+</span>
+
+{{ end }} {{ block "france-svg" . }}
+
+<svg xmlns="http://www.w3.org/2000/svg" width="45" height="30">
+  <rect width="45" height="30" fill="#CE1126" />
+  <rect width="30" height="30" fill="#FFFFFF" />
+  <rect width="15" height="30" fill="#002654" />
+</svg>
+
+{{ end }} {{ block "english-svg" . }}
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 60 30"
+  width="60"
+  height="30"
+>
+  <clipPath id="s">
+    <path d="M0,0 v30 h60 v-30 z" />
+  </clipPath>
+  <clipPath id="t">
+    <path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z" />
+  </clipPath>
+  <g clip-path="url(#s)">
+    <path d="M0,0 v30 h60 v-30 z" fill="#012169" />
+    <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6" />
+    <path
+      d="M0,0 L60,30 M60,0 L0,30"
+      clip-path="url(#t)"
+      stroke="#C8102E"
+      stroke-width="4"
+    />
+    <path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10" />
+    <path d="M30,0 v30 M0,15 h60" stroke="#C8102E" stroke-width="6" />
+  </g>
+</svg>
 
 {{ end }}

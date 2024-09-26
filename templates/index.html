@@ -1,13 +1,23 @@
 <html>
+  <head>
+    <title>Pool Planner</title>
+    <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
 
-    <head>
-        <title> Pool Planner </title>
-        <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
-        <script src="https://cdn.tailwindcss.com"></script>
-    </head>
+    <!-- TailGrids CDN -->
 
-    <body >
-        {{ template "header-eng" . }}
-    </body>
+    <script src="https://cdn.jsdelivr.net/npm/tailgrids@2.1.0/plugin.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailgrids@2.1.0/assets/css/tailwind.min.css"
+      rel="stylesheet"
+    />
+  </head>
 
+  <body>
+    {{ template "header" . }}
+  </body>
 </html>
