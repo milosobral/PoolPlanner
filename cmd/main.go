@@ -29,11 +29,10 @@ func main() {
 	e.Renderer = NewTemplate()
 
 	// Routes
-	e.GET("/", handlers.HandleHeader)
+	e.GET("/", handlers.HandleLanguageDefault)
 	e.GET("/language-eng", handlers.HandleLanguageEng)
 	e.GET("/language-fra", handlers.HandleLanguageFra)
 
 	// Start server
 	e.Logger.Fatal(e.Start(":42069"))
-
 }

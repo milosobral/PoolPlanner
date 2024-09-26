@@ -1,10 +1,13 @@
 {{ block "header" . }}
 
-<div class="bg-blue-50 p-6 rounded-lg shadow-md mb-8 text-center">
+<div class="bg-blue-50 p-6 rounded-lg shadow-md mb-8 text-center" id="header">
   <h1 class="text-6xl font-bold text-blue-600 mb-4">Pool Planner</h1>
   {{ template "language-toggle" . }}
   <br />
-  <div id="explanation">{{ template "explanation-fra" . }}</div>
+  <div id="explanation">
+    {{ if eq .Language "fra" }} {{ template "explanation-fra" . }} {{ else }}{{
+    template "explanation-eng" . }}{{ end }}
+  </div>
 </div>
 
 {{ end }} {{ block "explanation-eng" . }}
@@ -35,11 +38,23 @@
 </p>
 {{ end }} {{ block "language-toggle" . }}
 
-<span class="flex justify-center">
-  <span hx-get="/language-fra" hx-target="#explanation">
+<span class="flex justify-center space-x-4">
+  <span
+    hx-get="/language-fra"
+    hx-target="#header"
+    hx-swap="outerHTML"
+    style="cursor: pointer"
+    class="{{ .FraClass}} p-2 rounded-md"
+  >
     {{ template "france-svg" . }}
   </span>
-  <span hx-get="/language-eng" hx-target="#explanation">
+  <span
+    hx-get="/language-eng"
+    hx-target="#header"
+    hx-swap="outerHTML"
+    style="cursor: pointer"
+    class="{{ .EngClass}} p-2 rounded-md"
+  >
     {{ template "english-svg" . }}
   </span>
 </span>
