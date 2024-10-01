@@ -8,22 +8,17 @@ import (
 	"github.com/milo-sobral/PoolPlanner/internal/handlers"
 )
 
-type Template struct {
-	tmpl *template.Template
-}
-
 func NewTemplate() *Template {
 	return &Template{
 		tmpl: template.Must(template.ParseGlob("templates/*.html")),
 	}
 }
 
-func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	return t.tmpl.ExecuteTemplate(w, name, data)
+type Template struct {
+	tmpl *template.Template
 }
 
 func main() {
-
 	// Create a simple server which serves index.html
 	e := echo.New()
 	e.Renderer = NewTemplate()
@@ -35,4 +30,8 @@ func main() {
 
 	// Start server
 	e.Logger.Fatal(e.Start(":42069"))
+}
+
+func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	return t.tmpl.ExecuteTemplate(w, name, data)
 }
