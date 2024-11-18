@@ -5,7 +5,6 @@ go 1.23.1
 require (
 	github.com/gocolly/colly v1.2.0
 	github.com/labstack/echo/v4 v4.12.0
-	github.com/milosobral/PoolPlanner v0.0.0-20241001171953-a26b084c76b5
 )
 
 require (

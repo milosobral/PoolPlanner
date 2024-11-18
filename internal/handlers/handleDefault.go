@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/milosobral/PoolPlanner/internal/services/scraping"
+	"github.com/milosobral/PoolPlanner/internal/scraping"
 )
 
 const url string = "https://montreal.ca/lieux?mtl_content.lieux.installation.code=PISI&mtl_content.lieux.available_activities.code=ACT0"
