@@ -50,6 +50,7 @@ USER appuser
 
 # Copy the executable from the "build" stage.
 COPY --from=build /bin/${TARGETBIN} /bin/${TARGETBIN}
+COPY ./templates ./templates
 
 # Set the entry point to the application
 ENV TARGETBINENTRY=/bin/${TARGETBIN}
