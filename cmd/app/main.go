@@ -5,7 +5,7 @@ import (
 	"text/template"
 
 	"github.com/labstack/echo/v4"
-	"github.com/milo-sobral/PoolPlanner/internal/handlers"
+	"github.com/milosobral/PoolPlanner/internal/handlers"
 )
 
 func NewTemplate() *Template {

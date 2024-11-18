@@ -1,11 +1,11 @@
-module github.com/milo-sobral/PoolPlanner
+module github.com/milosobral/PoolPlanner
 
 go 1.23.1
 
 require (
 	github.com/gocolly/colly v1.2.0
-	github.com/google/uuid v1.6.0
 	github.com/labstack/echo/v4 v4.12.0
+	github.com/milosobral/PoolPlanner v0.0.0-20241001171953-a26b084c76b5
 )
 
 require (
@@ -22,7 +22,6 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/saintfish/chardet v0.0.0-20230101081208-5e3ef4b5456d // indirect
-	github.com/stretchr/testify v1.9.0 // indirect
 	github.com/temoto/robotstxt v1.1.2 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
