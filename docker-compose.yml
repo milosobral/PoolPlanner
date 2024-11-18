@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+  scraper:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: go run cmd/scraper/main.go
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgres://user:password@db:5432/mydb
+
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: go run cmd/webapp/main.go
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgres://user:password@db:5432/mydb
+    ports:
+      - "8080:8080"
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydb
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
+
