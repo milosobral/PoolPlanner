@@ -1,0 +1,41 @@
+package database
+
+// From https://github.com/dreamsofcode-io/testcontainers/blob/main/database/db.go
+
+import (
+	"database/sql"
+	"fmt"
+	"os"
+
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	_ "github.com/jackc/pgx/v5/stdlib"
+)
+
+func Connect(uri string) (*sql.DB, error) {
+	db, err := sql.Open("pgx", uri)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open db: %w", err)
+	}
+
+	return db, nil
+}
+
+func Migrate(uri string) (*migrate.Migrate, error) {
+	path, exists := os.LookupEnv("MIGRATIONS_PATH")
+	if !exists {
+		path = "file://migrations"
+	}
+
+	m, err := migrate.New(path, uri)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect migrator: %w", err)
+	}
+
+	// Migrate all the way up ...
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		return nil, fmt.Errorf("failed to migrate up: %w", err)
+	}
+	return m, nil
+}
