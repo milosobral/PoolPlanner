@@ -2,7 +2,9 @@
 CREATE TABLE pools (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
-    location TEXT NOT NULL,
+    href TEXT NOT NULL,
+    address TEXT NOT NULL,
+    neighborhood TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );

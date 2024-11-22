@@ -12,15 +12,8 @@ import (
 	"time"
 
 	"github.com/gocolly/colly"
+	"github.com/milosobral/PoolPlanner/internal/database"
 )
-
-// Pool struct
-type Pool struct {
-	Name         string
-	Href         string
-	Address      string
-	Neighborhood string
-}
 
 type Schedule struct {
 	validity []time.Time
@@ -37,21 +30,10 @@ var priorityList = []string{
 	"toutes et tous",
 }
 
-// Stringer function for the schedule struct
-func (s Schedule) String() string {
-	return fmt.Sprintf("Validity: %v\nSchedules: %v", s.validity, s.sched)
-}
-
-// Stringer function for the pool struct
-func (p Pool) String() string {
-	// Make a string with the pool name and href
-	return "Name: " + p.Name + "\nURL: " + p.Href + "\nAddress: " + p.Address + "\nNeighbourhood: " + p.Neighborhood
-}
-
 // Scraping the pool list with Colly
-func GetPoolList(url string) []Pool {
+func GetPoolList(url string) []database.Pool {
 
-	pools := make([]Pool, 0)
+	pools := make([]database.Pool, 0)
 
 	// Create a new instance of the Collector
 	c := colly.NewCollector()
@@ -71,7 +53,7 @@ func GetPoolList(url string) []Pool {
 		neighbourhood := strings.Replace(e.ChildText("div.list-group-item-infos"), address, "", 1)
 
 		// Add the pool to the list
-		pools = append(pools, Pool{name, href, address, neighbourhood})
+		pools = append(pools, database.PoolFromScrapingData(name, href, address, neighbourhood))
 	})
 
 	c.OnError(

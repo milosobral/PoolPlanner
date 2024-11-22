@@ -7,99 +7,90 @@ import (
 
 // Pool represents a pool entity in the database
 type Pool struct {
-	ID        int
-	Name      string
-	Location  string
-	CreatedAt string
-	UpdatedAt string
+	ID           int
+	Name         string
+	Href         string
+	Address      string
+	Neighborhood string
+	CreatedAt    string
+	UpdatedAt    string
 }
 
-// InsertPool inserts a new pool into the pools table
-func InsertPool(db *sql.DB, name, location string) (int, error) {
-	query := `
-		INSERT INTO pools (name, location) 
-		VALUES ($1, $2) 
-		RETURNING id;
-	`
-	var id int
-	err := db.QueryRow(query, name, location).Scan(&id)
-	if err != nil {
-		return 0, fmt.Errorf("error inserting pool: %v", err)
+// Method to initialize a Pool object from the scraping data
+func PoolFromScrapingData(name, href, address, neighborhood string) Pool {
+	return Pool{
+		Name:         name,
+		Href:         href,
+		Address:      address,
+		Neighborhood: neighborhood,
 	}
-	return id, nil
 }
 
-// GetPoolByID retrieves a pool by its ID
-func GetPoolByID(db *sql.DB, id int) (*Pool, error) {
-	query := `
-		SELECT id, name, location, created_at, updated_at 
-		FROM pools 
-		WHERE id = $1;
-	`
-	var pool Pool
-	err := db.QueryRow(query, id).Scan(&pool.ID, &pool.Name, &pool.Location, &pool.CreatedAt, &pool.UpdatedAt)
+func UpdatePool(db *sql.DB, pool Pool) error {
+	// Check if the pool is already in the database
+	exists, err := PoolExists(db, pool.Name)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("pool with ID %d not found", id)
+		return fmt.Errorf("error checking pool: %v", err)
+	}
+	if !exists {
+		// If the pool is not in the database, insert it
+		_, err := InsertPool(db, pool)
+		if err != nil {
+			return fmt.Errorf("error inserting pool: %v", err)
 		}
-		return nil, fmt.Errorf("error retrieving pool: %v", err)
+	} else {
+		// If the pool is already in the database, update it
+		err := UpdatePoolByID(db, pool)
+		if err != nil {
+			return fmt.Errorf("error updating pool: %v", err)
+		}
 	}
-	return &pool, nil
+	return nil
 }
 
-// GetPoolsByNames retrieves IDs for multiple pools by their names
-func GetPoolsByNames(db *sql.DB, name string) ([]int, error) {
+func UpdatePoolByID(db *sql.DB, pool Pool) error {
+	// Update the Pools values in the database except for the name and the created at
+	query := `
+		UPDATE pools 
+		SET href = $1, address = $2, neighborhood = $3, updated_at = NOW() 
+		WHERE name = $4;
+	`
+	_, err := db.Exec(query, pool.Href, pool.Address, pool.Neighborhood, pool.Name)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// Check if a pool exists in the database based on name
+func PoolExists(db *sql.DB, name string) (bool, error) {
 	query := `
 		SELECT id 
 		FROM pools 
 		WHERE name = $1;
 	`
-	rows, err := db.Query(query, name)
+	var id int
+	err := db.QueryRow(query, name).Scan(&id)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving pool IDs: %v", err)
-	}
-	defer rows.Close()
-
-	var ids []int
-	for rows.Next() {
-		var id int
-		if err := rows.Scan(&id); err != nil {
-			return nil, fmt.Errorf("error scanning pool ID: %v", err)
+		if err == sql.ErrNoRows {
+			return false, nil
 		}
-		ids = append(ids, id)
+		return false, fmt.Errorf("error checking pool: %v", err)
 	}
-
-	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("error with rows: %v", err)
-	}
-
-	return ids, nil
+	return true, nil
 }
 
-// GetAllPools retrieves all pools from the pools table
-func GetAllPools(db *sql.DB) ([]Pool, error) {
+// InsertPool inserts a new pool into the pools table
+func InsertPool(db *sql.DB, pool Pool) (int, error) {
 	query := `
-		SELECT id, name, location, created_at, updated_at 
-		FROM pools;
+		INSERT INTO pools (name, href, address, neighborhood) 
+		VALUES ($1, $2, $3, $4) 
+		RETURNING id;
 	`
-	rows, err := db.Query(query)
+	var id int
+	err := db.QueryRow(query, pool.Name, pool.Href, pool.Address, pool.Neighborhood).Scan(&id)
 	if err != nil {
-		return nil, fmt.Errorf("error retrieving pools: %v", err)
+		return 0, fmt.Errorf("error inserting pool: %v", err)
 	}
-	defer rows.Close()
-
-	var pools []Pool
-	for rows.Next() {
-		var pool Pool
-		if err := rows.Scan(&pool.ID, &pool.Name, &pool.Location, &pool.CreatedAt, &pool.UpdatedAt); err != nil {
-			return nil, fmt.Errorf("error scanning pool: %v", err)
-		}
-		pools = append(pools, pool)
-	}
-
-	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("error with rows: %v", err)
-	}
-
-	return pools, nil
+	return id, nil
 }

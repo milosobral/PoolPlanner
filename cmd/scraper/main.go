@@ -4,9 +4,11 @@ package main
 import (
 	"log"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/milosobral/PoolPlanner/internal/database"
+	"github.com/milosobral/PoolPlanner/internal/scraping"
 )
 
 func main() {
@@ -40,16 +42,36 @@ func main() {
 	log.Println("Connected to the database")
 
 	// Do the migrations
-	m, err := database.Migrate(uri)
+	_, err = database.Migrate(uri)
 	if err != nil {
 		log.Fatal(err)
 	}
 	log.Println("Migrations done")
 
-	// Restore the Database
-	if err := m.Down(); err != nil {
-		log.Fatal(err)
+	// Get the pool url
+	url, exists := os.LookupEnv("POOL_URL")
+	if !exists {
+		log.Fatal("POOL_URL not set")
 	}
-	log.Println("Database restored")
+
+	scrapingTicker := time.NewTicker(time.Second * 30)
+	for {
+		select {
+		case <-scrapingTicker.C:
+			// Scrape the pool list
+			pools := scraping.GetPoolList(url)
+
+			// Update the database
+			for _, pool := range pools {
+				err = database.UpdatePool(db, pool)
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
+
+			// Scrape the pool schedule for each pool
+			// Update the database of events
+		}
+	}
 
 }
