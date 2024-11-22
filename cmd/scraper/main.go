@@ -44,10 +44,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Println("Migrations done")
 
 	// Restore the Database
 	if err := m.Down(); err != nil {
 		log.Fatal(err)
 	}
+	log.Println("Database restored")
 
 }
